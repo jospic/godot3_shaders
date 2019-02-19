@@ -1,3 +1,3 @@
 # Flame example
 
-![Flame](godot3_shaders/flame/thumb/flame.gif)
+![Flame](./thumb/flame.gif "flame in Godot 3")
