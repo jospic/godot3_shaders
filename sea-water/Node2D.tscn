@@ -213,7 +213,7 @@ shader_param/octave_m = Transform2D( 1.6, -1.2, 1.2, 1.6, 0, 0 )
 
 [node name="Sprite" type="Sprite" parent="."]
 material = SubResource( 2 )
-position = Vector2( 2355.36, -205.904 )
+position = Vector2( 2361.52, 2030.13 )
 scale = Vector2( 416.574, 246.829 )
 texture = ExtResource( 1 )
 centered = false
