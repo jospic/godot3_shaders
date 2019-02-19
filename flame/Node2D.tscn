@@ -8,6 +8,7 @@
 [sub_resource type="Shader" id=2]
 code = "// Author: Nicolas Barradeau
 // Title: Unicorn Puke
+// converted for Godot 3 shader by jospic (jospic@gmail.com)
 
 shader_type canvas_item;
 
