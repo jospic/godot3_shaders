@@ -1,3 +1,3 @@
 *Flame example
 
-![Flame](/thumb/flame.gif)
+![Flame](godot3_shaders/flame/thumb/flame.gif)
