@@ -3,6 +3,7 @@
 [ext_resource path="res://black.png" type="Texture" id=1]
 [ext_resource path="res://icon.png" type="Texture" id=2]
 
+
 [sub_resource type="CanvasItemMaterial" id=1]
 
 [sub_resource type="Shader" id=2]
