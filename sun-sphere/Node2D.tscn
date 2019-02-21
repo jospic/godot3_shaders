@@ -172,8 +172,9 @@ float sphereZero(vec3 ray,vec3 pos,float r)
 
 void fragment()
 {
+	
 	vec2 p = (-vec2(1280., 720.).xy + 2.0*FRAGCOORD.xy) / 720.;
-
+	
     float time=TIME*1.0;
     
 	float mx = mouse_position.x >0.0?mouse_position.x/1280.0*10.0:time*0.025;
@@ -238,7 +239,7 @@ shader_param/WS = Plane( 0.25, 0.25, 0.25, 0.25 )
 
 [node name="Sprite" type="Sprite" parent="."]
 material = SubResource( 2 )
-position = Vector2( 482, 398.5 )
+position = Vector2( 560.45, 384.45 )
 scale = Vector2( 17.5313, 12.0469 )
 texture = ExtResource( 1 )
 script = ExtResource( 2 )

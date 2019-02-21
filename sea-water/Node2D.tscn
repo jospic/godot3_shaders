@@ -1,20 +1,25 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://icon.png" type="Texture" id=1]
+[ext_resource path="res://Sprite.gd" type="Script" id=2]
 
 [sub_resource type="Shader" id=1]
 code = "/*
  * \"Seascape\" by Alexander Alekseev aka TDM - 2014
  * License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
  * Contact: tdmaav@gmail.com
+ * converted for Godot 3 shader by jospic (jospic@gmail.com)
  */
 
 shader_type canvas_item;
 
+uniform vec2 mouse_position;
+uniform vec2 screen_size;
+
 uniform int NUM_STEPS = 8;
 uniform float PI	 	= 3.141592;
 uniform float EPSILON	= 1e-3;
-uniform float EPSILON_NRM = 0.000078125; //0.1 / 1280.;
+uniform float EPSILON_NRM = 0.00009765625; // 0.1 / screen_size.x = 0.1 / 1024.;
 
 // sea
 uniform int ITER_GEOMETRY = 3;
@@ -165,10 +170,10 @@ float heightMapTracing(vec3 ori, vec3 dir, out vec3 p, float TIME) {
 // main
 void fragment() {
 		
-	vec2 uv = FRAGCOORD.xy / vec2(1280.,720.);
+	vec2 uv = FRAGCOORD.xy / vec2(screen_size.x,screen_size.y);
     uv = uv * 2.0 - 1.0;
-    uv.x *= 1280. / 720.;    
-    float time = TIME * 0.3 ;//+ iMouse.x*0.01;
+    uv.x *= screen_size.x / screen_size.y;    
+    float time = TIME * 0.3 + mouse_position.x*0.01;
         
     // ray
     vec3 ang = vec3(sin(time*3.0)*0.1,sin(time)*0.2+0.3,time);    
@@ -195,6 +200,8 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = SubResource( 1 )
+shader_param/mouse_position = Vector2( 0, 100 )
+shader_param/screen_size = null
 shader_param/NUM_STEPS = 8
 shader_param/PI = 3.14159
 shader_param/EPSILON = 0.001
@@ -213,8 +220,9 @@ shader_param/octave_m = Transform2D( 1.6, -1.2, 1.2, 1.6, 0, 0 )
 
 [node name="Sprite" type="Sprite" parent="."]
 material = SubResource( 2 )
-position = Vector2( 2361.52, 2030.13 )
+position = Vector2( -2539.2, -3890.23 )
 scale = Vector2( 416.574, 246.829 )
 texture = ExtResource( 1 )
 centered = false
+script = ExtResource( 2 )
 
