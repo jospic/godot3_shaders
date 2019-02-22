@@ -32,6 +32,10 @@ uniform float SEA_FREQ = 0.16;
 uniform vec3 SEA_BASE = vec3(0.1,0.19,0.22);
 uniform vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
 
+float SEA_TIME(float TIME) {
+	return (1.0 + TIME * SEA_SPEED);
+	}
+
 uniform mat2 octave_m = mat2(vec2(1.6,1.2),vec2(-1.2,1.6));
 
 // math
@@ -84,7 +88,7 @@ float sea_octave(vec2 uv, float choppy) {
 }
 
 float map(vec3 p, float TIME) {
-	float SEA_TIME = (1.0 + TIME * SEA_SPEED);
+	
     float freq = SEA_FREQ;
     float amp = SEA_HEIGHT;
     float choppy = SEA_CHOPPY;
@@ -92,8 +96,8 @@ float map(vec3 p, float TIME) {
     
     float d, h = 0.0;    
     for(int i = 0; i < ITER_GEOMETRY; i++) {        
-    	d = sea_octave((uv+SEA_TIME)*freq,choppy);
-    	d += sea_octave((uv-SEA_TIME)*freq,choppy);
+    	d = sea_octave((uv+SEA_TIME(TIME))*freq,choppy);
+    	d += sea_octave((uv-SEA_TIME(TIME))*freq,choppy);
         h += d * amp;        
     	uv *= octave_m; freq *= 1.9; amp *= 0.22;
         choppy = mix(choppy,1.0,0.2);
