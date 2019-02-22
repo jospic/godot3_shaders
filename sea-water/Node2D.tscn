@@ -20,7 +20,10 @@ uniform vec2 screen_size;
 uniform int NUM_STEPS = 8;
 uniform float PI	 	= 3.141592;
 uniform float EPSILON	= 1e-3;
-uniform float EPSILON_NRM = 0.00009765625; // 0.1 / screen_size.x = 0.1 / 1024.;
+
+float EPSILON_NRM(){
+	return  0.1 / screen_size.x;
+}
 
 // sea
 uniform int ITER_GEOMETRY = 3;
@@ -34,7 +37,7 @@ uniform vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
 
 float SEA_TIME(float TIME) {
 	return (1.0 + TIME * SEA_SPEED);
-	}
+}
 
 uniform mat2 octave_m = mat2(vec2(1.6,1.2),vec2(-1.2,1.6));
 
@@ -106,7 +109,7 @@ float map(vec3 p, float TIME) {
 }
 
 float map_detailed(vec3 p, float TIME) {
-	float SEA_TIME = (1.0 + TIME * SEA_SPEED);
+	
     float freq = SEA_FREQ;
     float amp = SEA_HEIGHT;
     float choppy = SEA_CHOPPY;
@@ -114,8 +117,8 @@ float map_detailed(vec3 p, float TIME) {
     
     float d, h = 0.0;    
     for(int i = 0; i < ITER_FRAGMENT; i++) {        
-    	d = sea_octave((uv+SEA_TIME)*freq,choppy);
-    	d += sea_octave((uv-SEA_TIME)*freq,choppy);
+    	d = sea_octave((uv+SEA_TIME(TIME))*freq,choppy);
+    	d += sea_octave((uv-SEA_TIME(TIME))*freq,choppy);
         h += d * amp;        
     	uv *= octave_m; freq *= 1.9; amp *= 0.22;
         choppy = mix(choppy,1.0,0.2);
@@ -190,7 +193,7 @@ void fragment() {
     vec3 p;
     heightMapTracing(ori,dir,p, TIME);
     vec3 dist = p - ori;
-    vec3 n = getNormal(p, dot(dist,dist) * EPSILON_NRM, TIME);
+    vec3 n = getNormal(p, dot(dist,dist) * EPSILON_NRM(), TIME);
     vec3 light = normalize(vec3(0.0,1.0,0.8)); 
              
     // color
@@ -210,7 +213,6 @@ shader_param/screen_size = null
 shader_param/NUM_STEPS = 8
 shader_param/PI = 3.14159
 shader_param/EPSILON = 0.001
-shader_param/EPSILON_NRM = 7.8125e-005
 shader_param/ITER_GEOMETRY = 3
 shader_param/ITER_FRAGMENT = 5
 shader_param/SEA_HEIGHT = 0.6
