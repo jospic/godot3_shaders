@@ -224,7 +224,7 @@ shader_param/SEA_WATER_COLOR = Vector3( 0.8, 0.9, 0.6 )
 shader_param/octave_m = Transform2D( 1.6, -1.2, 1.2, 1.6, 0, 0 )
 
 [sub_resource type="RectangleShape2D" id=3]
-extents = Vector2( 31.9408, 31.8647 )
+extents = Vector2( 32, 32 )
 
 [node name="Node2D" type="Node2D"]
 

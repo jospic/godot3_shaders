@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://icon.png" type="Texture" id=1]
 [ext_resource path="res://Sprite.gd" type="Script" id=2]
@@ -19,6 +19,7 @@ code = "// Panteleymonov A K 2015
 shader_type canvas_item;
 
 uniform vec2 mouse_position;
+uniform vec2 screen_size;
 
 // animated noise
 uniform vec4 NC0=vec4(0.0,157.0,113.0,270.0);
@@ -173,12 +174,12 @@ float sphereZero(vec3 ray,vec3 pos,float r)
 void fragment()
 {
 	
-	vec2 p = (-vec2(1280., 720.).xy + 2.0*FRAGCOORD.xy) / 720.;
+	vec2 p = (-screen_size.xy + 2.0*FRAGCOORD.xy) / screen_size.y;
 	
     float time=TIME*1.0;
     
-	float mx = mouse_position.x >0.0?mouse_position.x/1280.0*10.0:time*0.025;
-    float my = mouse_position.y >0.0?mouse_position.y/720.0*4.0-2.0:-0.6;
+	float mx = mouse_position.x >0.0?mouse_position.x/screen_size.x*10.0:time*0.025;
+    float my = mouse_position.y >0.0?mouse_position.y/screen_size.y*4.0-2.0:-0.6;
     vec2 rotate = vec2(mx,my);
 
     vec2 sins=sin(rotate);
@@ -231,16 +232,26 @@ void fragment()
 [sub_resource type="ShaderMaterial" id=2]
 shader = SubResource( 1 )
 shader_param/mouse_position = null
+shader_param/screen_size = null
 shader_param/NC0 = Plane( 0, 157, 113, 270 )
 shader_param/NC1 = Plane( 1, 158, 114, 271 )
 shader_param/WS = Plane( 0.25, 0.25, 0.25, 0.25 )
+
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 32, 32 )
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Sprite" type="Sprite" parent="."]
 material = SubResource( 2 )
-position = Vector2( 560.45, 384.45 )
-scale = Vector2( 17.5313, 12.0469 )
+scale = Vector2( 64, 64 )
 texture = ExtResource( 1 )
 script = ExtResource( 2 )
 
+[node name="Area2D" type="Area2D" parent="Sprite"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite/Area2D"]
+shape = SubResource( 3 )
+
+[connection signal="mouse_entered" from="Sprite/Area2D" to="Sprite" method="_on_Area2D_mouse_entered"]
+[connection signal="mouse_exited" from="Sprite/Area2D" to="Sprite" method="_on_Area2D_mouse_exited"]
