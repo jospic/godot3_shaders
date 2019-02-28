@@ -201,7 +201,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 ## Converted Godot 3 shader fragment
-Following code is the final fragmente converted for Godot 3.
+Following code is the final shader fragment compatible for Godot 3.
 
 ```glsl 
 1. /*
