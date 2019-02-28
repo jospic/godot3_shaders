@@ -455,6 +455,7 @@ For these same reasons, the **TIME** variable was added to the functions, on lin
 
 ### Variables
 In order to make writing fragment shaders straightforward and easy, Shadertoy handles passing a lot of helpful information from the main program into the fragment shader for you. As shown in the following table, some variables have equivalences in Godot:
+
 | ShaderToy variable | Equivalent in Godot 3 | type |
 |---|---|---|
 | fragColor	 |  COLOR | out vec4 |
