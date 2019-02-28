@@ -463,7 +463,12 @@ In order to make writing fragment shaders straightforward and easy, Shadertoy ha
 
 But some variables have no equivalents in Godot and the user is responsible for creating that uniform themself. Two classic examples are the ```iMouse``` and ```iResolution``` variables. In this case the equivalents Godot shading variables (```mouse_position``` and ```screen_size```) are handled in GDScript and passed to the shader, as seen from the initialization instructions at the lines **11** and **12**.
 
-The following image shows the lines where the variables *screen_size* and *mouse_position* are passed to the shader, applied to the sprite texture.
+```glsl
+uniform vec2 mouse_position;
+uniform vec2 screen_size;
+```
+
+The following image shows the GDScript lines where the variables *screen_size* and *mouse_position* are passed to the shader, applied to the sprite texture.
 
 ![GDScript - Passing variables to shader](./thumb/gdscript.png "GDScript - Passing variables to shader")
 
