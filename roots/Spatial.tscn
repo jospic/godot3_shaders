@@ -1,0 +1,184 @@
+[gd_scene load_steps=7 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "
+// Crypt Roots
+// Ray marching improvised geometry with curvy shapes and rock textures
+// Exploring level of details, materials and lights
+// Licensed under hippie love conspiracy
+// Leon Denise (ponk) 2019.02.24
+
+// Using code from
+
+// Inigo Quilez
+// https://www.shadertoy.com/view/Xds3zN
+
+// Morgan McGuire
+// https://www.shadertoy.com/view/4dS3Wd
+//
+// coverted for Godot 3 by jospic (jospic@gmil.com)
+
+shader_type canvas_item;
+
+vec2 repeat(vec2 p, vec2 r) {
+	return (mod(p, r)-r/2.);
+}
+
+uniform float PI = 3.14159;
+mat2 rot (float a) { float c=cos(a), s=sin(a); return mat2(vec2(c,s),vec2(-s,c)); }
+float smoothmin (float a, float b, float r) { float h = clamp(.5+.5*(b-a)/r, 0., 1.); return mix(b, a, h)-r*h*(1.-h); }
+float random (in vec2 st) { return fract(sin(dot(st.xy,vec2(12.9898,78.233)))*43758.5453123); }
+float hash(float n) { return fract(sin(n) * 1e4); }
+float noise(vec3 x) {
+    vec3 step = vec3(110, 241, 171);
+    vec3 i = floor(x);
+    vec3 f = fract(x);
+    float n = dot(i, step);
+    vec3 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix( hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
+                   mix( hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
+               mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
+                   mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
+}
+float fbm (vec3 p) {
+  float amplitude = 0.5;
+  float result = 0.0;
+  for (float index = 0.0; index <= 3.0; ++index) {
+    result += noise(p / amplitude) * amplitude;
+    amplitude /= 2.;
+  }
+  return result;
+}
+vec3 look (vec3 eye, vec3 target, vec2 anchor) {
+    vec3 forward = normalize(target-eye);
+    vec3 right = normalize(cross(forward, vec3(0,1,0)));
+    vec3 up = normalize(cross(right, forward));
+    return normalize(forward + right * anchor.x + up * anchor.y);
+}
+void moda(inout vec2 p, float repetitions) {
+	float angle = 2.*PI/repetitions;
+	float a = atan(p.y, p.x) + angle/2.;
+	a = mod(a,angle) - angle/2.;
+	p = vec2(cos(a), sin(a))*length(p);
+}
+
+float map (vec3 pos) {
+  float chilly = noise(pos * 2.);
+  float salty = fbm(pos*20.);
+  
+  pos.z -= salty*.04;
+  salty = smoothstep(.3, 1., salty);
+  pos.z += salty*.04;
+  pos.xy -= (chilly*2.-1.) * .2;
+    
+  vec3 p = pos;
+  vec2 cell = vec2(1., .5);
+  vec2 id = floor(p.xz/cell);
+  p.xy *= rot(id.y * .5);
+  p.y += sin(p.x + .5);
+  p.xz = repeat(p.xz, cell);
+    
+  vec3 pp = p;
+  moda(p.yz, 5.0);
+  p.y -= .1;
+  float scene = length(p.yz)-.02;
+    
+  vec3 ppp = pos;
+  pp.xz *= rot(pp.y * 5.);
+  //ppp = repeat(ppp, .1);
+  moda(pp.xz, 3.0);
+  pp.x -= .04 + .02*sin(pp.y*5.);
+  scene = smoothmin(length(pp.xz)-.01, scene, .2);
+
+  p = pos;
+  p.xy *= rot(-p.z);
+  moda(p.xy, 8.0);
+  p.x -= .7;
+  p.xy *= rot(p.z*8.);
+  p.xy = abs(p.xy)-.02;
+  scene = smoothmin(scene, length(p.xy)-.005, .2);
+
+  return scene;
+}
+
+vec3 getNormal (vec3 pos) {
+  vec3 e = vec3(1.0,-1.0, 1.0)*0.5773*0.0005;
+  return normalize( e.xyy*map( pos + e.xyy ) + e.yyx*map( pos + e.yyx ) + e.yxy*map( pos + e.yxy ) + e.xxx*map( pos + e.xxx ) );
+}
+
+void fragment() {
+  vec2 uv = (FRAGCOORD.xy-0.5*vec2(1024, 768).xy)/768.;
+  vec3 eye = vec3(.1,.1,-TIME*.1-4.);
+  vec3 at = vec3(0,0,eye.z-2.0);
+  vec3 ray = look(eye, at, uv);
+  vec3 pos = eye;
+  float dither = random(uv+fract(TIME));
+  float total = dither * .2;
+  float shade = 0.0;
+  float count = 60.0;
+  for (float index = count; index > 0.0; --index) {
+    pos = eye + ray * total;
+    float dist = map(pos);
+    if (dist < 0.001 + total * .003) {
+      shade = index / count;
+      break;
+    }
+    dist *= 0.5 + 0.1 * dither;
+    total += dist;
+  }
+  vec3 normal = getNormal(pos);
+  vec3 color = vec3(0);
+  color += smoothstep(.3, .6, fbm(pos*100.)) * .2;
+  color += vec3(0.839, 1, 1) * pow(clamp(dot(normal, normalize(vec3(0,2,1))), 0.0, 1.0), 4.);
+  color += vec3(1, 0.725, 0.580) * pow(clamp(dot(normal, -normalize(pos-at)), 0.0, 1.0), 4.);
+  color += vec3(0.972, 1, 0.839) * pow(clamp(dot(normal, normalize(vec3(4,0,1))), 0.0, 1.0), 4.);
+  color += vec3(0.972, 1, 0.839) * pow(clamp(dot(normal, normalize(vec3(-5,0,1)))*.5+.5, 0.0, 1.0), 4.);
+  color = mix(vec3(0), color, clamp(dot(normal, -ray), 0.0, 1.0));
+  color *= pow(shade, 1.0/1.2);
+  COLOR = vec4(color, 1);
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/PI = 3.14159
+
+[sub_resource type="ViewportTexture" id=3]
+viewport_path = NodePath("Viewport")
+
+[sub_resource type="SpatialMaterial" id=4]
+resource_local_to_scene = true
+albedo_texture = SubResource( 3 )
+
+[sub_resource type="PlaneMesh" id=5]
+
+[sub_resource type="CubeMesh" id=6]
+
+[node name="Spatial" type="Spatial"]
+
+[node name="Viewport" type="Viewport" parent="."]
+size = Vector2( 1024, 768 )
+hdr = false
+disable_3d = true
+usage = 0
+
+[node name="ColorRect" type="ColorRect" parent="Viewport"]
+material = SubResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_bottom = 168.0
+rect_min_size = Vector2( 1024, 768 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 2.07804, 0, 0, 0, -5.33574e-008, 1.22067, 0, -1, -4.37114e-008, 0, 0, 0 )
+material_override = SubResource( 4 )
+mesh = SubResource( 5 )
+material/0 = null
+
+[node name="Camera" type="Camera" parent="MeshInstance"]
+transform = Transform( -1, -8.74228e-008, 4.37114e-008, 4.37114e-008, 3.55271e-015, 1, -8.74228e-008, 1, 0, 0, 1.73194, 1.61008e-008 )
+
+[node name="ship" type="MeshInstance" parent="."]
+transform = Transform( 0.29917, 0, 0, 0, 0.275855, 0, 0, 0, 0.272279, 0, 0, -0.673289 )
+mesh = SubResource( 6 )
+material/0 = null
+
