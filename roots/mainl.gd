@@ -6,9 +6,12 @@ onready var backscreen = get_node("BackgroundScreen")
 onready var rect = get_node("Viewport/ColorRect")
 
 const ROT_SPEED = 0.5
-const TRANS_SPEED = 10
+
+const TRUST_INCR = 0.01
+const TRUST_MAX = 2.0
 
 var rot_x = 0
+var trust = 0
 
 func _ready():
 	var backscreen_size = backscreen.get_mesh().get_size()
@@ -31,8 +34,14 @@ func _process(delta):
 #			camera.make_current()
 #		eagle.translate(Vector3(1, 0, 0) * TRANS_SPEED)
 
-	if Input.is_action_pressed("ui_down"):
-		eagle.translate(Vector3(0, 1, 0) * -TRANS_SPEED)
+	if (Input.is_action_pressed("ui_down") and trust >= TRUST_INCR):
+		#eagle.translate(Vector3(0, 1, 0) * -TRANS_SPEED)
+		trust = trust - TRUST_INCR
 		
-	if Input.is_action_pressed("ui_up"):
-        eagle.translate(Vector3(0, 1, 0) * TRANS_SPEED)
+		
+	if (Input.is_action_pressed("ui_up") and trust <= TRUST_MAX):
+        #eagle.translate(Vector3(0, 1, 0) * TRANS_SPEED)
+		trust = trust + TRUST_INCR
+		rect.get_material().set_shader_param("trust", trust)  # pass trust on shader script
+		
+		
