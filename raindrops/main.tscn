@@ -1,0 +1,117 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://sassi.jpg" type="Texture" id=1]
+[ext_resource path="res://Sprite.gd" type="Script" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "/*
+
+A quick experiment with rain drop ripples.
+
+This effect was written for and used in the launch scene of the
+64kB intro \"H - Immersion\", by Ctrl-Alt-Test.
+
+ > http://www.ctrl-alt-test.fr/productions/h-immersion/
+ > https://www.youtube.com/watch?v=27PN1SsXbjM
+
+-- 
+Zavie / Ctrl-Alt-Test
+
+converted for Godot 3 shaders by jospic (jospic@gmail.com)
+*/
+
+shader_type canvas_item;
+// Maximum number of cells a ripple can cross.
+uniform float MAX_RADIUS = 2.0;
+
+uniform vec2 mouse;
+uniform sampler2D texture_sprite;
+
+// Set to 1 to hash twice. Slower, but less patterns.
+uniform int DOUBLE_HASH = 0;
+
+// Hash functions shamefully stolen from:
+// https://www.shadertoy.com/view/4djSRW
+uniform float HASHSCALE1 = 0.1031;
+uniform vec3 HASHSCALE3 =vec3(0.1031, 0.1030, 0.0973);
+
+float hash12(vec2 p)
+{
+	vec3 p3  = fract(vec3(p.xy, p.x) * HASHSCALE1);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+vec2 hash22(vec2 p)
+{
+	vec3 p3 = fract(vec3(p.xy, p.x) * HASHSCALE3);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return fract((p3.xx + p3.yz) * p3.zy);
+
+}
+
+void fragment()
+{
+    float resolution = 10.0 * exp2(-3.0*mouse.x/(1.0 / SCREEN_PIXEL_SIZE).x);
+	vec2 uv = FRAGCOORD.xy / (1.0 / SCREEN_PIXEL_SIZE).y * resolution;
+    vec2 p0 = floor(uv);
+
+    vec2 circles = vec2(0.0, 0.0);
+    for (float j = -MAX_RADIUS; j <= MAX_RADIUS; ++j)
+    {
+        for (float i = -MAX_RADIUS; i <= MAX_RADIUS; ++i)
+        {
+			vec2 pi = vec2(p0) + vec2(i, j);
+			
+		    vec2 hsh = hash22(pi);
+        	
+            vec2 p = pi + hash22(hsh);
+
+            float t = fract(0.3*TIME + hash12(hsh));
+            vec2 v = p - uv;
+            float d = length(v) - (float(MAX_RADIUS) + 1.0)*t;
+
+            float h = 1e-3;
+            float d1 = d - h;
+            float d2 = d + h;
+            float p1 = sin(31.0*d1) * smoothstep(-0.6, -0.3, d1) * smoothstep(0.0, -0.3, d1);
+            float p2 = sin(31.0*d2) * smoothstep(-0.6, -0.3, d2) * smoothstep(0.0, -0.3, d2);
+            circles += 0.5 * normalize(v) * ((p2 - p1) / (2.0 * h) * (1.0 - t) * (1.0 - t));
+        }
+    }
+    circles /= float((MAX_RADIUS*2.0+1.0)*(MAX_RADIUS*2.0+1.0));
+
+    float intensity = mix(0.01, 0.15, smoothstep(0.1, 0.6, abs(fract(0.05*TIME + 0.5)*2.0-1.0)));
+    vec3 n = vec3(circles, sqrt(1.0 - dot(circles, circles)));
+    vec3 color = texture(texture_sprite, uv/resolution / 1.7 - intensity*n.xy).rgb + 5.*pow(clamp(dot(n, normalize(vec3(1.0, 0.7, 0.5))), 0.0, 1.0), 6.0);
+	COLOR = vec4(color, 1.0);
+}
+"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/MAX_RADIUS = 2
+shader_param/mouse = null
+shader_param/DOUBLE_HASH = 0
+shader_param/HASHSCALE1 = 0.1031
+shader_param/HASHSCALE3 = Vector3( 0.1031, 0.103, 0.0973 )
+
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 512, 300 )
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Sprite" type="Sprite" parent="."]
+material = SubResource( 2 )
+texture = ExtResource( 1 )
+centered = false
+script = ExtResource( 2 )
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2( 512, 300 )
+shape = SubResource( 3 )
+
+[connection signal="mouse_entered" from="Area2D" to="Sprite" method="_on_Area2D_mouse_entered"]
+[connection signal="mouse_exited" from="Area2D" to="Sprite" method="_on_Area2D_mouse_exited"]
