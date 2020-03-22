@@ -4,6 +4,10 @@ importer="texture"
 type="StreamTexture"
 path.s3tc="res://.import/skin_baseColor.jpeg-5faa15cdf18c7450d5d665d933d4076d.s3tc.stex"
 path.etc2="res://.import/skin_baseColor.jpeg-5faa15cdf18c7450d5d665d933d4076d.etc2.stex"
+metadata={
+"imported_formats": [ "s3tc", "etc2" ],
+"vram_texture": true
+}
 
 [deps]
 

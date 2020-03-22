@@ -3,7 +3,6 @@
 [ext_resource path="res://black.png" type="Texture" id=1]
 [ext_resource path="res://icon.png" type="Texture" id=2]
 
-
 [sub_resource type="CanvasItemMaterial" id=1]
 
 [sub_resource type="Shader" id=2]
@@ -28,18 +27,18 @@ float sphere(vec3 p, vec4 spr)
 	return length(spr.xyz-p) - spr.w;
 }
 
-float flame(vec3 p, float TIME)
+float flame(vec3 p, float time)
 {
 	float d = sphere(p*vec3(1.,.5,1.), vec4(.0,-1.,.0,1.));
-	return d + (noise(p+vec3(.0,  2.0 * TIME, .0)) + noise(p*3.)*.5)*.25*(p.y) ;
+	return d + (noise(p+vec3(.0,  2.0 * time, .0)) + noise(p*3.)*.5)*.25*(p.y) ;
 }
 
-float scene(vec3 p, float TIME)
+float scene(vec3 p, float time)
 {
-	return min(100.-length(p) , abs(flame(p, TIME)) );
+	return min(100.-length(p) , abs(flame(p, time)) );
 }
 
-vec4 raymarch(vec3 org, vec3 dir, float TIME)
+vec4 raymarch(vec3 org, vec3 dir, float time)
 {
 	float d = 0.0, glow = 0.0, eps = 0.02;
 	vec3  p = org;
@@ -47,11 +46,11 @@ vec4 raymarch(vec3 org, vec3 dir, float TIME)
 	
 	for(int i=0; i<64; i++)
 	{
-		d = scene(p, TIME) + eps;
+		d = scene(p, time) + eps;
 		p += d * dir;
 		if( d>eps )
 		{
-			if(flame(p, TIME) < .0)
+			if(flame(p, time) < .0)
 				glowed=true;
 			if(glowed)
        			glow = float(i)/64.;
@@ -92,10 +91,12 @@ margin_right = 1022.0
 margin_bottom = 602.0
 texture = ExtResource( 1 )
 expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Sprite" type="Sprite" parent="."]
 material = SubResource( 3 )
 position = Vector2( 354, 300 )
 scale = Vector2( 7.5, 9.3125 )
 texture = ExtResource( 2 )
-

@@ -235,8 +235,8 @@ Following code is the final shader fragment compatible for Godot 3.
 29. uniform vec3 SEA_BASE = vec3(0.1,0.19,0.22);
 30. uniform vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
 31. 
-32. float SEA_TIME(float TIME) {
-33. 	return (1.0 + TIME * SEA_SPEED);
+32. float SEA_TIME(float time) {
+33. 	return (1.0 + time * SEA_SPEED);
 34. }
 35. 
 36. uniform mat2 octave_m = mat2(vec2(1.6,1.2),vec2(-1.2,1.6));
@@ -290,7 +290,7 @@ Following code is the final shader fragment compatible for Godot 3.
 84.     return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
 85. }
 86. 
-87. float map(vec3 p, float TIME) {
+87. float map(vec3 p, float time) {
 88. 	
 89.     float freq = SEA_FREQ;
 90.     float amp = SEA_HEIGHT;
@@ -299,8 +299,8 @@ Following code is the final shader fragment compatible for Godot 3.
 93.     
 94.     float d, h = 0.0;    
 95.     for(int i = 0; i < ITER_GEOMETRY; i++) {        
-96.     	d = sea_octave((uv+SEA_TIME(TIME))*freq,choppy);
-97.     	d += sea_octave((uv-SEA_TIME(TIME))*freq,choppy);
+96.     	d = sea_octave((uv+SEA_TIME(time))*freq,choppy);
+97.     	d += sea_octave((uv-SEA_TIME(time))*freq,choppy);
 98.         h += d * amp;        
 99.     	uv *= octave_m; freq *= 1.9; amp *= 0.22;
 100.         choppy = mix(choppy,1.0,0.2);
@@ -308,7 +308,7 @@ Following code is the final shader fragment compatible for Godot 3.
 102.     return p.y - h;
 103. }
 104. 
-105. float map_detailed(vec3 p, float TIME) {
+105. float map_detailed(vec3 p, float time) {
 106. 	
 107.     float freq = SEA_FREQ;
 108.     float amp = SEA_HEIGHT;
@@ -317,8 +317,8 @@ Following code is the final shader fragment compatible for Godot 3.
 111.     
 112.     float d, h = 0.0;    
 113.     for(int i = 0; i < ITER_FRAGMENT; i++) {        
-114.     	d = sea_octave((uv+SEA_TIME(TIME))*freq,choppy);
-115.     	d += sea_octave((uv-SEA_TIME(TIME))*freq,choppy);
+114.     	d = sea_octave((uv+SEA_TIME(time))*freq,choppy);
+115.     	d += sea_octave((uv-SEA_TIME(time))*freq,choppy);
 116.         h += d * amp;        
 117.     	uv *= octave_m; freq *= 1.9; amp *= 0.22;
 118.         choppy = mix(choppy,1.0,0.2);
@@ -344,26 +344,26 @@ Following code is the final shader fragment compatible for Godot 3.
 138. }
 139. 
 140. // tracing
-141. vec3 getNormal(vec3 p, float eps, float TIME) {
+141. vec3 getNormal(vec3 p, float eps, float time) {
 142.     vec3 n;
-143.     n.y = map_detailed(p, TIME);    
-144.     n.x = map_detailed(vec3(p.x+eps,p.y,p.z), TIME) - n.y;
-145.     n.z = map_detailed(vec3(p.x,p.y,p.z+eps), TIME) - n.y;
+143.     n.y = map_detailed(p, time);    
+144.     n.x = map_detailed(vec3(p.x+eps,p.y,p.z), time) - n.y;
+145.     n.z = map_detailed(vec3(p.x,p.y,p.z+eps), time) - n.y;
 146.     n.y = eps;
 147.     return normalize(n);
 148. }
 149. 
-150. float heightMapTracing(vec3 ori, vec3 dir, out vec3 p, float TIME) {  
+150. float heightMapTracing(vec3 ori, vec3 dir, out vec3 p, float time) {  
 151.     float tm = 0.0;
 152.     float tx = 1000.0;    
-153.     float hx = map(ori + dir * tx, TIME);
+153.     float hx = map(ori + dir * tx, time);
 154.     if(hx > 0.0) return tx;   
-155.     float hm = map(ori + dir * tm, TIME);    
+155.     float hm = map(ori + dir * tm, time);    
 156.     float tmid = 0.0;
 157.     for(int i = 0; i < NUM_STEPS; i++) {
 158.         tmid = mix(tm,tx, hm/(hm-hx));                   
 159.         p = ori + dir * tmid;                   
-160.     	float hmid = map(p, TIME);
+160.     	float hmid = map(p, time);
 161. 		if(hmid < 0.0) {
 162.         	tx = tmid;
 163.             hx = hmid;
@@ -441,8 +441,8 @@ the original code was:
 
 Instead from line **32** to **34** there is a function with one argument.
 ```glsl
-float SEA_TIME(float TIME) {
-	return (1.0 + TIME * SEA_SPEED);
+float SEA_TIME(float time) {
+	return (1.0 + time * SEA_SPEED);
 }
 ```
 equivalent to the original statement:

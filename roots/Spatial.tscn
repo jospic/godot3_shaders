@@ -177,7 +177,7 @@ margin_bottom = 168.0
 rect_min_size = Vector2( 1024, 768 )
 
 [node name="BackgroundScreen" type="MeshInstance" parent="."]
-transform = Transform( 2.31223, 0, 0, 0, -1.0476e-007, 2.39662, 0, -1, -4.37114e-008, 0, 0, 0 )
+transform = Transform( 2.31223, 0, 0, 0, -1.0476e-07, 2.39662, 0, -1, -4.37114e-08, 0, 0, 0 )
 material_override = SubResource( 4 )
 mesh = SubResource( 5 )
 material/0 = null
@@ -186,20 +186,19 @@ material/0 = null
 transform = Transform( 1, 0, 0, 0, -0.0805411, 0.996751, 0, -0.996751, -0.0805411, -0.786377, 1.48849, -1.9614 )
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( -1, -9.06134e-008, 1.89045e-008, -9.06134e-008, 1, -1.82388e-008, -1.89045e-008, -1.82388e-008, -1, 0, -1.4285e-007, -3.64765 )
+transform = Transform( -1, -9.06134e-08, 1.89045e-08, -9.06134e-08, 1, -1.82388e-08, -1.89045e-08, -1.82388e-08, -1, 0, -1.4285e-07, -3.64765 )
 fov = 49.7
 near = 0.03
 far = 37.9
 
 [node name="Eagle" parent="." instance=ExtResource( 2 )]
-transform = Transform( -4.37114e-011, 0, -0.001, 0, 0.001, 0, 0.001, 0, -4.37114e-011, 0, -0.509, -1.59 )
+transform = Transform( -4.37114e-11, 0, -0.001, 0, 0.001, 0, 0.001, 0, -4.37114e-11, 0, -0.509, -1.59 )
 
 [node name="fire_nozzle" type="Spatial" parent="Eagle"]
-editor/display_folded = true
-transform = Transform( -4.37114e-005, 0, 1000, 0, 1000, 0, -1000, 0, -4.37114e-005, 1590, 509, -6.95011e-005 )
+transform = Transform( -4.37114e-05, 0, 1000, 0, 1000, 0, -1000, 0, -4.37114e-05, 1590, 509, -6.95011e-05 )
 
 [node name="fire_nozzle_up" type="Particles" parent="Eagle/fire_nozzle"]
-transform = Transform( 0.05, 0, 0, 0, -2.18557e-009, -0.1, 0, 0.05, -4.37114e-009, 0.0197755, -0.424024, -2.43129 )
+transform = Transform( 0.05, 0, 0, 0, -2.18557e-09, -0.1, 0, 0.05, -4.37114e-09, 0.0197755, -0.424024, -2.43129 )
 material_override = SubResource( 6 )
 amount = 20
 lifetime = 1.3
@@ -208,7 +207,7 @@ process_material = SubResource( 11 )
 draw_pass_1 = SubResource( 12 )
 
 [node name="fire_nozzle_down" type="Particles" parent="Eagle/fire_nozzle"]
-transform = Transform( 0.05, 0, 0, 0, -2.18557e-009, -0.1, 0, 0.05, -4.37114e-009, 0.0197755, -0.560184, -2.43129 )
+transform = Transform( 0.05, 0, 0, 0, -2.18557e-09, -0.1, 0, 0.05, -4.37114e-09, 0.0197755, -0.560184, -2.43129 )
 material_override = SubResource( 6 )
 amount = 20
 lifetime = 1.3
@@ -217,7 +216,7 @@ process_material = SubResource( 11 )
 draw_pass_1 = SubResource( 12 )
 
 [node name="fire_nozzle_left" type="Particles" parent="Eagle/fire_nozzle"]
-transform = Transform( 0.05, 0, 0, 0, -2.18557e-009, -0.1, 0, 0.05, -4.37114e-009, 0.134899, -0.485052, -2.43129 )
+transform = Transform( 0.05, 0, 0, 0, -2.18557e-09, -0.1, 0, 0.05, -4.37114e-09, 0.134899, -0.485052, -2.43129 )
 material_override = SubResource( 6 )
 amount = 20
 lifetime = 1.3
@@ -226,11 +225,10 @@ process_material = SubResource( 11 )
 draw_pass_1 = SubResource( 12 )
 
 [node name="fire_nozzle_right" type="Particles" parent="Eagle/fire_nozzle"]
-transform = Transform( 0.05, 0, 0, 0, -2.18557e-009, -0.1, 0, 0.05, -4.37114e-009, -0.103939, -0.492923, -2.43129 )
+transform = Transform( 0.05, 0, 0, 0, -2.18557e-09, -0.1, 0, 0.05, -4.37114e-09, -0.103939, -0.492923, -2.43129 )
 material_override = SubResource( 6 )
 amount = 20
 lifetime = 1.3
 randomness = 0.3
 process_material = SubResource( 11 )
 draw_pass_1 = SubResource( 12 )
-

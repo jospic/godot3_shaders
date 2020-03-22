@@ -4,6 +4,10 @@ importer="texture"
 type="StreamTexture"
 path.s3tc="res://.import/podred_baseColor.jpeg-78944251befa1641cd5bb8147def02c1.s3tc.stex"
 path.etc2="res://.import/podred_baseColor.jpeg-78944251befa1641cd5bb8147def02c1.etc2.stex"
+metadata={
+"imported_formats": [ "s3tc", "etc2" ],
+"vram_texture": true
+}
 
 [deps]
 
