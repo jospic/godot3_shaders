@@ -35,8 +35,8 @@ uniform float SEA_FREQ = 0.16;
 uniform vec3 SEA_BASE = vec3(0.1,0.19,0.22);
 uniform vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
 
-float SEA_TIME(float TIME) {
-	return (1.0 + TIME * SEA_SPEED);
+float SEA_TIME(float time) {
+	return (1.0 + time * SEA_SPEED);
 }
 
 uniform mat2 octave_m = mat2(vec2(1.6,1.2),vec2(-1.2,1.6));
@@ -90,7 +90,7 @@ float sea_octave(vec2 uv, float choppy) {
     return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
 }
 
-float map(vec3 p, float TIME) {
+float map(vec3 p, float time) {
 	
     float freq = SEA_FREQ;
     float amp = SEA_HEIGHT;
@@ -99,8 +99,8 @@ float map(vec3 p, float TIME) {
     
     float d, h = 0.0;    
     for(int i = 0; i < ITER_GEOMETRY; i++) {        
-    	d = sea_octave((uv+SEA_TIME(TIME))*freq,choppy);
-    	d += sea_octave((uv-SEA_TIME(TIME))*freq,choppy);
+    	d = sea_octave((uv+SEA_TIME(time))*freq,choppy);
+    	d += sea_octave((uv-SEA_TIME(time))*freq,choppy);
         h += d * amp;        
     	uv *= octave_m; freq *= 1.9; amp *= 0.22;
         choppy = mix(choppy,1.0,0.2);
@@ -108,7 +108,7 @@ float map(vec3 p, float TIME) {
     return p.y - h;
 }
 
-float map_detailed(vec3 p, float TIME) {
+float map_detailed(vec3 p, float time) {
 	
     float freq = SEA_FREQ;
     float amp = SEA_HEIGHT;
@@ -117,8 +117,8 @@ float map_detailed(vec3 p, float TIME) {
     
     float d, h = 0.0;    
     for(int i = 0; i < ITER_FRAGMENT; i++) {        
-    	d = sea_octave((uv+SEA_TIME(TIME))*freq,choppy);
-    	d += sea_octave((uv-SEA_TIME(TIME))*freq,choppy);
+    	d = sea_octave((uv+SEA_TIME(time))*freq,choppy);
+    	d += sea_octave((uv-SEA_TIME(time))*freq,choppy);
         h += d * amp;        
     	uv *= octave_m; freq *= 1.9; amp *= 0.22;
         choppy = mix(choppy,1.0,0.2);
@@ -144,26 +144,26 @@ vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {
 }
 
 // tracing
-vec3 getNormal(vec3 p, float eps, float TIME) {
+vec3 getNormal(vec3 p, float eps, float time) {
     vec3 n;
-    n.y = map_detailed(p, TIME);    
-    n.x = map_detailed(vec3(p.x+eps,p.y,p.z), TIME) - n.y;
-    n.z = map_detailed(vec3(p.x,p.y,p.z+eps), TIME) - n.y;
+    n.y = map_detailed(p, time);    
+    n.x = map_detailed(vec3(p.x+eps,p.y,p.z), time) - n.y;
+    n.z = map_detailed(vec3(p.x,p.y,p.z+eps), time) - n.y;
     n.y = eps;
     return normalize(n);
 }
 
-float heightMapTracing(vec3 ori, vec3 dir, out vec3 p, float TIME) {  
+float heightMapTracing(vec3 ori, vec3 dir, out vec3 p, float time) {  
     float tm = 0.0;
     float tx = 1000.0;    
-    float hx = map(ori + dir * tx, TIME);
+    float hx = map(ori + dir * tx, time);
     if(hx > 0.0) return tx;   
-    float hm = map(ori + dir * tm, TIME);    
+    float hm = map(ori + dir * tm, time);    
     float tmid = 0.0;
     for(int i = 0; i < NUM_STEPS; i++) {
         tmid = mix(tm,tx, hm/(hm-hx));                   
         p = ori + dir * tmid;                   
-    	float hmid = map(p, TIME);
+    	float hmid = map(p, time);
 		if(hmid < 0.0) {
         	tx = tmid;
             hx = hmid;
@@ -230,7 +230,8 @@ extents = Vector2( 32, 32 )
 
 [node name="Sprite" type="Sprite" parent="."]
 material = SubResource( 2 )
-scale = Vector2( 64, 64 )
+position = Vector2( 1186.4, 288.725 )
+scale = Vector2( 101.075, 73.0226 )
 texture = ExtResource( 1 )
 script = ExtResource( 2 )
 
@@ -238,6 +239,5 @@ script = ExtResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite/Area2D"]
 shape = SubResource( 3 )
-
 [connection signal="mouse_entered" from="Sprite/Area2D" to="Sprite" method="_on_Area2D_mouse_entered"]
 [connection signal="mouse_exited" from="Sprite/Area2D" to="Sprite" method="_on_Area2D_mouse_exited"]
