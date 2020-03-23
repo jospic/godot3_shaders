@@ -5,8 +5,7 @@
 [ext_resource path="res://fire_02.png" type="Texture" id=3]
 
 [sub_resource type="Shader" id=1]
-code = "
-// Crypt Roots
+code = "// Crypt Roots
 // Ray marching improvised geometry with curvy shapes and rock textures
 // Exploring level of details, materials and lights
 // Licensed under hippie love conspiracy
@@ -20,91 +19,138 @@ code = "
 // Morgan McGuire
 // https://www.shadertoy.com/view/4dS3Wd
 //
-// coverted for Godot 3 by jospic (jospic@gmil.com)
+// converted for Godot 3.2 by jospic (jospic@gmail.com)
 
 shader_type canvas_item;
 
-// speed
-float t(float time){
-	 return (time * .6); 
-}
-// PI value
-uniform float PI =  3.14159265;
-
-// random
-float H(vec2 P) {
-	 return fract(sin(dot(P,vec2(127.1,311.7)))*43758.545);
+vec2 repeat(vec2 p, vec2 r) {
+	return (mod(p,r)-r/2.);
 }
 
-// rotate 
-mat2 pR(float a) {
-	return mat2(vec2(cos(a),sin(a)),-vec2(sin(a),cos(a)));
+vec3 repeat2(vec3 p, float r) {
+	return (mod(p,r)-r/2.);
+}
+
+const float PI = 3.14159;
+mat2 rot (float a) { 
+	float c=cos(a), s=sin(a); 
+	return mat2(vec2(c,s), vec2(-s,c)); 
+}
+
+float smoothmin (float a, float b, float r) { float h = clamp(.5+.5*(b-a)/r, 0., 1.); return mix(b, a, h)-r*h*(1.-h); }
+float random (in vec2 st) { return fract(sin(dot(st.xy,vec2(12.9898,78.233)))*43758.5453123); }
+float hash(float n) { return fract(sin(n) * 1e4); }
+float noise(vec3 x) {
+    const vec3 step = vec3(110, 241, 171);
+    vec3 i = floor(x);
+    vec3 f = fract(x);
+    float n = dot(i, step);
+    vec3 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix( hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
+                   mix( hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
+               mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
+                   mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
+}
+float fbm (vec3 p) {
+  float amplitude = 0.5;
+  float result = 0.0;
+  for (float index = 0.0; index <= 3.0; ++index) {
+    result += noise(p / amplitude) * amplitude;
+    amplitude /= 2.;
+  }
+  return result;
+}
+vec3 look (vec3 eye, vec3 target, vec2 anchor) {
+    vec3 forward = normalize(target-eye);
+    vec3 right = normalize(cross(forward, vec3(0,1,0)));
+    vec3 up = normalize(cross(right, forward));
+    return normalize(forward + right * anchor.x + up * anchor.y);
+}
+void moda(inout vec2 p, float repetitions) {
+	float angle = 2.*PI/repetitions;
+	float a = atan(p.y, p.x) + angle/2.;
+	a = mod(a,angle) - angle/2.;
+	p = vec2(cos(a), sin(a))*length(p);
+}
+
+float map (vec3 pos) {
+  float chilly = noise(pos * 2.);
+  float salty = fbm(pos*20.);
+  
+  pos.z -= salty*.04;
+  salty = smoothstep(.3, 1., salty);
+  pos.z += salty*.04;
+  pos.xy -= (chilly*2.-1.) * .2;
+    
+  vec3 p = pos;
+  vec2 cell = vec2(1., .5);
+  vec2 id = floor(p.xz/cell);
+  p.xy *= rot(id.y * .5);
+  p.y += sin(p.x + .5);
+  p.xz = repeat(p.xz, cell);
+    
+  vec3 pp = p;
+  moda(p.yz, 5.0);
+  p.y -= .1;
+  float scene = length(p.yz)-.02;
+    
+  vec3 ppp = pos;
+  pp.xz *= rot(pp.y * 5.);
+  ppp = repeat2(ppp, .1);
+  moda(pp.xz, 3.0);
+  pp.x -= .04 + .02*sin(pp.y*5.);
+  scene = smoothmin(length(pp.xz)-.01, scene, .2);
+
+  p = pos;
+  p.xy *= rot(-p.z);
+  moda(p.xy, 8.0);
+  p.x -= .7;
+  p.xy *= rot(p.z*8.);
+  p.xy = abs(p.xy)-.02;
+  scene = smoothmin(scene, length(p.xy)-.005, .2);
+
+  return scene;
+}
+
+vec3 getNormal (vec3 pos) {
+  vec2 e = vec2(1.0,-1.0)*0.5773*0.0005;
+  return normalize( e.xyy*map( pos + e.xyy ) + e.yyx*map( pos + e.yyx ) + e.yxy*map( pos + e.yxy ) + e.xxx*map( pos + e.xxx ) );
 }
 
 void fragment() {
-  
-	vec2 uv = (FRAGCOORD.xy - 0.5 * (1.0 / SCREEN_PIXEL_SIZE).xy - 0.5) / (1.0 / SCREEN_PIXEL_SIZE).y;
-	
-    uv *= 10.00; // FOV
-    
-    // camera
-    vec3 
-        vuv = vec3(sin(TIME * .3), 1., cos(TIME)), // up
-        ro = vec3(0., 0., 134.), // pos
-        vrp = vec3(5., sin(TIME) * 60., 20.); // look at
-    
-    vrp.xz * pR(TIME);
-    vrp.yz * pR(TIME * .2);
-    
-    vec3
-    	vpn = normalize(vrp - ro),
-        u = normalize(cross(vuv, vpn)),
-    	rd = normalize(
-            vpn + uv.x * u  + uv.y * cross(vpn, u)
-        ); // ray direction
-    
-    vec3 sceneColor = vec3(0.0, 0.0, 0.3); // background color
-    
-    vec3 flareCol = vec3(0.0); // flare color accumulator   
-    float flareIntensivity = 0.; // flare intensity accumulator
-
-    for (float k = 0.; k < 400.; k++) {
-        float r = H(vec2(k)) * 2. - 1.; // random
-
-        // 3d flare position, xyz
-        vec3 flarePos =  vec3(
-            H(vec2(k) * r) * 20. - 10.,
-            r * 8.,
-            (mod(sin(k / 200. * PI * 4.) * 15. - t(TIME) * 13. * k * .007, 25.))
-        );
-		
-        float v = max(0., abs(dot(normalize(flarePos), rd)));
-        
-        // main dot
-        flareIntensivity += pow(v, 30000.) * 4.;
-        
-        // dot glow
-        flareIntensivity += pow(v, 1e2) * .15; 
-        
-        // fade far
-        flareIntensivity *= 1.- flarePos.z / 25.; 
-        
-        // accumulate
-        flareCol += vec3(flareIntensivity) * (vec3(sin(r * 3.12 - k), r, cos(k) * 2.)) * .3; 
+  vec2 uv = (FRAGCOORD.xy-0.5 * (1.0/SCREEN_PIXEL_SIZE).xy) / (1.0/SCREEN_PIXEL_SIZE).y;
+  vec3 eye = vec3(.1,.1,-TIME*.1-4.);
+  vec3 at = vec3(0,0,eye.z-2.0);
+  vec3 ray = look(eye, at, uv);
+  vec3 pos = eye;
+  float dither = random(uv+fract(TIME));
+  float total = dither * .2;
+  float shade = 0.0;
+  const float count = 60.0;
+  for (float index = count; index > 0.0; --index) {
+    pos = eye + ray * total;
+    float dist = map(pos);
+    if (dist < 0.001 + total * .003) {
+      shade = index / count;
+      break;
     }
-    
-    sceneColor += abs(flareCol);
-    
-    // go grayscale from screen center
-    sceneColor = mix(sceneColor, sceneColor.rrr * 1.4, length(uv) / 2.);
-    
-    // adjust contrast
-    COLOR.rgb = pow(sceneColor, vec3(1.1));
+    dist *= 0.5 + 0.1 * dither;
+    total += dist;
+  }
+  vec3 normal = getNormal(pos);
+  vec3 color = vec3(0);
+  color += smoothstep(.3, .6, fbm(pos*100.)) * .2;
+  color += vec3(0.839, 1, 1) * pow(clamp(dot(normal, normalize(vec3(0,2,1))), 0.0, 1.0), 4.);
+  color += vec3(1, 0.725, 0.580) * pow(clamp(dot(normal, -normalize(pos-at)), 0.0, 1.0), 4.);
+  color += vec3(0.972, 1, 0.839) * pow(clamp(dot(normal, normalize(vec3(4,0,1))), 0.0, 1.0), 4.);
+  color += vec3(0.972, 1, 0.839) * pow(clamp(dot(normal, normalize(vec3(-5,0,1)))*.5+.5, 0.0, 1.0), 4.);
+  color = mix(vec3(0), color, clamp(dot(normal, -ray), 0.0, 1.0));
+  color *= pow(shade, 1.0/1.2);
+  COLOR = vec4(color, 1);
 }"
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = SubResource( 1 )
-shader_param/PI = 3.14159
 
 [sub_resource type="ViewportTexture" id=3]
 viewport_path = NodePath("Viewport")
@@ -113,8 +159,6 @@ viewport_path = NodePath("Viewport")
 resource_local_to_scene = true
 flags_unshaded = true
 albedo_texture = SubResource( 3 )
-proximity_fade_enable = true
-proximity_fade_distance = 52.0
 
 [sub_resource type="PlaneMesh" id=5]
 size = Vector2( 4, 3 )
@@ -177,7 +221,7 @@ margin_bottom = 168.0
 rect_min_size = Vector2( 1024, 768 )
 
 [node name="BackgroundScreen" type="MeshInstance" parent="."]
-transform = Transform( 2.31223, 0, 0, 0, -1.0476e-07, 2.39662, 0, -1, -4.37114e-08, 0, 0, 0 )
+transform = Transform( 2.31223, 0, 0, 0, -1.0476e-07, 2.39662, 0, -1, -4.37114e-08, 0, 0, 1.63553 )
 material_override = SubResource( 4 )
 mesh = SubResource( 5 )
 material/0 = null
