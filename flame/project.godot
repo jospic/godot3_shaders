@@ -15,7 +15,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="shader"
+config/name="flame"
 run/main_scene="res://Node2D.tscn"
 boot_splash/bg_color=Color( 0, 0, 0, 1 )
 config/icon="res://icon.png"
