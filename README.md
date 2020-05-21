@@ -8,6 +8,9 @@ For a brief guide on how to migrate from ShaderToy to Godot 3 look here: https:/
   <img src="roots/thumb/roots.gif" alt="Roots" 	title="Roots" width="350"  />  </td> <td> <img src="noise/thumb/noise.gif" alt="Noise" 	title="Noise" width="350"  />  	</td></tr>
   <tr><td>  	  	  	
   <img src="tunnel/thumb/tunnel.gif" alt="Tunnel" 	title="Tunnel" width="350"  />  </td> <td> <img src="mandelbox/thumb/mandelbox.gif" alt="Mandelbox" 	title="Mandelbox" width="350"  />  	</td></tr>
+  <tr><td>  	  	  	
+  <img src="traced-tunnel/thumb/traced-tunnel.gif" alt="Traced Tunnel" 	title="Traced Tunnel" width="350"  />  </td> <td> 	</td></tr>
+  
   
   
   </table> 	   	  	
