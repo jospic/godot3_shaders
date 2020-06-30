@@ -11,9 +11,7 @@ For a brief guide on how to migrate from ShaderToy to Godot 3 look here: https:/
   <tr><td>  	  	  	
   <img src="traced-tunnel/thumb/traced-tunnel.gif" alt="Traced Tunnel" 	title="Traced Tunnel" width="350"  />  </td> <td> <img src="fast-ocean/thumb/fastocean.gif" alt="Fast Procedural Ocean" 	title="Fast Procedural Ocean" width="350"  /> 	</td></tr>
   <tr><td>  	  	  	
-  <img src="mandelbrot-pattern/thumb/mandelbrot-pattern.gif" alt="Mandelbrot Pattern Decoration" 	title="Mandelbrot Pattern Decoration" width="350"  />  </td> <td> </td></tr>
-  
-  
+  <img src="mandelbrot-pattern/thumb/mandelbrot-pattern.gif" alt="Mandelbrot Pattern Decoration" 	title="Mandelbrot Pattern Decoration" width="350"  />  </td> <td> <img src="stargate/thumb/stargate.gif" alt="Abstract Terrain Objects (stargate)" 	title="Abstract Terrain Objects (stargate)" width="350"  /> </td></tr>
   
   </table> 	   	  	
 
