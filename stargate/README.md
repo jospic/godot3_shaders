@@ -1,6 +1,7 @@
 # Abstract Terrain Objects (stargate) 
 
 This is a converted demo for Godot 3 from original example by ShaderToy https://www.shadertoy.com/view/ttXGWH
+
 Compared to the original version, I used a different algorithm for terrain noise, 
 inspired by: https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
 
